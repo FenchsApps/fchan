@@ -28,10 +28,11 @@ function App() {
       setAccessibilityMode(saved.accessibilityMode)
       setUserIP(saved.userIP)
       if (saved.language) setLanguage(saved.language)
+    } else {
+      // Only load from localStorage if no saved game with language preference
+      const savedLang = localStorage.getItem('fchan-language') as Language
+      if (savedLang) setLanguage(savedLang)
     }
-    // Load language preference
-    const savedLang = localStorage.getItem('fchan-language') as Language
-    if (savedLang) setLanguage(savedLang)
     setIsLoaded(true)
   }, [])
 

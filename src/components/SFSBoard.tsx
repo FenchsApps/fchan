@@ -127,14 +127,16 @@ export default function SFSBoard({
   }, [])
 
   const getWeirdcoreMessage = (index: number): string => {
-    const keys: (keyof typeof import('../translations').translations.en)[] = [
+    const keys: (keyof typeof import('../translations').translations.en | null)[] = [
       'weirdcore1',
       'weirdcore2', 
       'weirdcore3',
       'weirdcore4',
+      null, // 5th weirdcore post has no text (just image)
     ]
     if (index < keys.length) {
-      return t(keys[index])
+      const key = keys[index]
+      return key ? t(key) : ''
     }
     return ''
   }
