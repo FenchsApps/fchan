@@ -104,7 +104,7 @@ export default function FinalScene({ accessibilityMode }: FinalSceneProps) {
   const [chaosPosts, setChaosPosts] = useState<{ id: number; author: string; content: string; image?: string }[]>([])
   const [glitchIntensity, setGlitchIntensity] = useState(0)
   const audioRef = useRef<HTMLAudioElement | null>(null)
-  const chaosInterval = useRef<NodeJS.Timeout | null>(null)
+  const chaosInterval = useRef<ReturnType<typeof setInterval> | null>(null)
 
   // Eye phase - pixels appear, then eye shakes and grows
   useEffect(() => {
