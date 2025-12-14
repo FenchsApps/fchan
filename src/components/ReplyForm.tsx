@@ -1,14 +1,17 @@
 import { useState, FormEvent } from 'react'
+import { Language, getTranslation } from '../translations'
 
 interface ReplyFormProps {
   onSubmit: (content: string) => void
   replyTo: number
   disabled?: boolean
+  language: Language
 }
 
-export default function ReplyForm({ onSubmit, replyTo, disabled }: ReplyFormProps) {
+export default function ReplyForm({ onSubmit, replyTo, disabled, language }: ReplyFormProps) {
   const [content, setContent] = useState('')
   const [showImageError, setShowImageError] = useState(false)
+  const t = (key: keyof typeof import('../translations').translations.en) => getTranslation(language, key)
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
@@ -27,13 +30,13 @@ export default function ReplyForm({ onSubmit, replyTo, disabled }: ReplyFormProp
     <div className="bg-chan-post-bg border-t-2 border-chan-post-border p-4 mt-4">
       <form onSubmit={handleSubmit} className="max-w-2xl mx-auto">
         <div className="text-sm mb-2 text-gray-600">
-          Replying to <a className="quote-link">&gt;&gt;{replyTo}</a>
+          {t('replyingTo')} <a className="quote-link">&gt;&gt;{replyTo}</a>
         </div>
         
         <div className="flex gap-2 mb-2">
           <input 
             type="text"
-            placeholder="Name"
+            placeholder={t('name')}
             defaultValue="Anonymous"
             className="border border-gray-400 px-2 py-1 text-sm w-32"
             disabled
@@ -45,7 +48,7 @@ export default function ReplyForm({ onSubmit, replyTo, disabled }: ReplyFormProp
           />
           <input 
             type="text"
-            placeholder="Subject"
+            placeholder={t('subject')}
             className="border border-gray-400 px-2 py-1 text-sm flex-1"
           />
         </div>
@@ -54,7 +57,7 @@ export default function ReplyForm({ onSubmit, replyTo, disabled }: ReplyFormProp
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="Type your reply..."
+            placeholder={t('typeReply')}
             className="border border-gray-400 px-2 py-1 text-sm flex-1 h-20 resize-none"
             disabled={disabled}
           />
@@ -66,7 +69,7 @@ export default function ReplyForm({ onSubmit, replyTo, disabled }: ReplyFormProp
             disabled={disabled || !content.trim()}
             className="bg-gray-200 border border-gray-400 px-4 py-1 text-sm hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Post Reply
+            {t('postReply')}
           </button>
           
           <label className="text-sm">
@@ -79,15 +82,15 @@ export default function ReplyForm({ onSubmit, replyTo, disabled }: ReplyFormProp
               }}
             />
             <span className="border border-gray-400 bg-gray-200 px-2 py-1 cursor-pointer hover:bg-gray-300">
-              Choose File
+              {t('chooseFile')}
             </span>
           </label>
           
-          <span className="text-gray-500 text-sm">No file chosen</span>
+          <span className="text-gray-500 text-sm">{t('noFileChosen')}</span>
           
           {showImageError && (
             <span className="text-red-600 text-sm">
-              Error: File upload is disabled.
+              {t('fileUploadError')}
             </span>
           )}
         </div>

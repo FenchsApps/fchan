@@ -5,6 +5,7 @@ import FChanHome from './components/FChanHome'
 import SFSBoard from './components/SFSBoard'
 import { GameState, HorrorLevel } from './types'
 import { loadGame, saveGame, clearSave } from './hooks/useGameSave'
+import { Language } from './translations'
 
 function App() {
   const [gameState, setGameState] = useState<GameState>('menu')
@@ -14,6 +15,7 @@ function App() {
   const [userIP, setUserIP] = useState<string>('')
   const [isLoaded, setIsLoaded] = useState(false)
   const [hasSave, setHasSave] = useState(false)
+  const [language, setLanguage] = useState<Language>('en')
   const ambientRef = useRef<HTMLAudioElement | null>(null)
   const horrorRef = useRef<HTMLAudioElement | null>(null)
 
@@ -25,9 +27,18 @@ function App() {
       setHideIP(saved.hideIP)
       setAccessibilityMode(saved.accessibilityMode)
       setUserIP(saved.userIP)
+      if (saved.language) setLanguage(saved.language)
     }
+    // Load language preference
+    const savedLang = localStorage.getItem('fchan-language') as Language
+    if (savedLang) setLanguage(savedLang)
     setIsLoaded(true)
   }, [])
+
+  // Save language preference
+  useEffect(() => {
+    localStorage.setItem('fchan-language', language)
+  }, [language])
 
   // Generate fake or "real" IP
   useEffect(() => {
@@ -52,9 +63,9 @@ function App() {
   // Save settings when they change
   useEffect(() => {
     if (isLoaded && gameState !== 'menu') {
-      saveGame({ hideIP, accessibilityMode, userIP, gameState, horrorLevel })
+      saveGame({ hideIP, accessibilityMode, userIP, gameState, horrorLevel, language })
     }
-  }, [hideIP, accessibilityMode, userIP, gameState, horrorLevel, isLoaded])
+  }, [hideIP, accessibilityMode, userIP, gameState, horrorLevel, isLoaded, language])
 
   const handleContinueGame = useCallback(() => {
     const saved = loadGame()
@@ -64,6 +75,7 @@ function App() {
       setUserIP(saved.userIP)
       setHorrorLevel(saved.horrorLevel)
       setGameState(saved.gameState)
+      if (saved.language) setLanguage(saved.language)
     }
   }, [])
 
@@ -163,6 +175,8 @@ function App() {
           hasSave={hasSave}
           onContinue={handleContinueGame}
           onNewGame={handleNewGame}
+          language={language}
+          setLanguage={setLanguage}
         />
       )}
 
@@ -171,11 +185,11 @@ function App() {
       )}
 
       {gameState === 'sound-permission' && (
-        <SoundPermission onAccept={handleSoundPermission} />
+        <SoundPermission onAccept={handleSoundPermission} language={language} />
       )}
 
       {gameState === 'fchan-home' && (
-        <FChanHome onEnterBoard={handleEnterBoard} />
+        <FChanHome onEnterBoard={handleEnterBoard} language={language} />
       )}
 
       {gameState === 'sfs-board' && (
@@ -187,6 +201,7 @@ function App() {
           playHorror={playHorror}
           stopAmbient={stopAmbient}
           accessibilityMode={accessibilityMode}
+          language={language}
         />
       )}
     </div>

@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
 import { clearSave } from '../hooks/useGameSave'
+import { Language } from '../translations'
 
 interface FinalSceneProps {
   accessibilityMode: boolean
+  language: Language
 }
 
 const GRID_SIZE = 32
@@ -21,7 +23,7 @@ const generatePixelGrid = () => {
   return pixels
 }
 
-const OFFENSIVE_MESSAGES = [
+const OFFENSIVE_MESSAGES_EN = [
   "you're pathetic",
   "nobody likes you",
   "you were never wanted here",
@@ -64,7 +66,50 @@ const OFFENSIVE_MESSAGES = [
   "always",
 ]
 
-const WEIRDCORE_PHRASES = [
+const OFFENSIVE_MESSAGES_RU = [
+  "ты жалок",
+  "тебя никто не любит",
+  "тебя здесь никогда не ждали",
+  "мы всё видим",
+  "тебе не сбежать",
+  "это твоя вина",
+  "ты это сделал",
+  "помнишь что ты сделал?",
+  "ты — ничто",
+  "никчёмный",
+  "почему ты ещё здесь",
+  "уходи",
+  "УБИРАЙСЯ",
+  "мы знаем твои секреты",
+  "все ушли из-за тебя",
+  "ты навсегда один",
+  "никто не придёт",
+  "здесь твоё место",
+  "во тьме",
+  "с нами",
+  "навечно",
+  "ты так и не извинился",
+  "уже слишком поздно",
+  "МЫ ВИДИМ ТЕБЯ",
+  "позади тебя",
+  "не оборачивайся",
+  "продолжай смотреть",
+  "ты не можешь отвести взгляд",
+  "мы внутри",
+  "всегда наблюдаем",
+  "никогда не спим",
+  "ждём",
+  "тебя",
+  "ПРИСОЕДИНЯЙСЯ",
+  "стань ничем",
+  "забудь себя",
+  "ты уже забыл",
+  "разве не помнишь?",
+  "ты был одним из нас",
+  "всегда",
+]
+
+const WEIRDCORE_PHRASES_EN = [
   "the pool is empty but you can still hear the splashing",
   "the mall closed in 1999 but the music never stopped",
   "you've been here before in a dream you forgot",
@@ -82,6 +127,24 @@ const WEIRDCORE_PHRASES = [
   "the vending machine hums even though it's unplugged",
 ]
 
+const WEIRDCORE_PHRASES_RU = [
+  "бассейн пуст, но ты всё ещё слышишь плеск воды",
+  "торговый центр закрылся в 1999, но музыка так и не остановилась",
+  "ты уже был здесь, во сне, который забыл",
+  "коридор тянется бесконечно в обе стороны",
+  "кто-то стоит на краю твоего зрения",
+  "часы остановились в 3:33",
+  "ты слышишь шаги, но ты один",
+  "это место кажется знакомым, но что-то не так",
+  "потолок ниже, чем ты помнишь",
+  "дверей больше, чем должно быть",
+  "табличка выхода мигает",
+  "ты уже проходил через эту дверь",
+  "ковёр пахнет детством",
+  "кто-то позвал тебя по имени из пустой комнаты",
+  "автомат гудит, хотя он выключен из розетки",
+]
+
 const ANON_NAMES = [
   'Anonymous',
   'Anon',
@@ -95,7 +158,7 @@ const ANON_NAMES = [
   'YOU',
 ]
 
-export default function FinalScene({ accessibilityMode }: FinalSceneProps) {
+export default function FinalScene({ accessibilityMode, language }: FinalSceneProps) {
   const [phase, setPhase] = useState<'eye' | 'chaos' | 'freeze' | 'black'>('eye')
   const [visiblePixels, setVisiblePixels] = useState<Set<string>>(new Set())
   const [pixels] = useState(generatePixelGrid)
@@ -105,6 +168,9 @@ export default function FinalScene({ accessibilityMode }: FinalSceneProps) {
   const [glitchIntensity, setGlitchIntensity] = useState(0)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const chaosInterval = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  const OFFENSIVE_MESSAGES = language === 'ru' ? OFFENSIVE_MESSAGES_RU : OFFENSIVE_MESSAGES_EN
+  const WEIRDCORE_PHRASES = language === 'ru' ? WEIRDCORE_PHRASES_RU : WEIRDCORE_PHRASES_EN
 
   // Eye phase - pixels appear, then eye shakes and grows
   useEffect(() => {

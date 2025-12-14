@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Language, getTranslation } from '../translations'
 
 interface MainMenuProps {
   onComputerClick: () => void
@@ -9,6 +10,8 @@ interface MainMenuProps {
   hasSave: boolean
   onContinue: () => void
   onNewGame: () => void
+  language: Language
+  setLanguage: (lang: Language) => void
 }
 
 export default function MainMenu({ 
@@ -19,58 +22,26 @@ export default function MainMenu({
   setAccessibilityMode,
   hasSave,
   onContinue,
-  onNewGame
+  onNewGame,
+  language,
+  setLanguage
 }: MainMenuProps) {
   const [hovered, setHovered] = useState(false)
-  const [showSavePrompt, setShowSavePrompt] = useState(false)
+  const t = (key: keyof typeof import('../translations').translations.en) => getTranslation(language, key)
 
-  const handleClick = () => {
-    if (hasSave) {
-      setShowSavePrompt(true)
-    } else {
-      onComputerClick()
-    }
+  const toggleLanguage = () => {
+    setLanguage(language === 'en' ? 'ru' : 'en')
   }
 
   return (
     <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
-      {/* Save prompt modal */}
-      {showSavePrompt && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-          <div className="bg-gray-900 border border-gray-600 p-6 max-w-md text-center">
-            <h2 className="text-xl mb-4 text-white">Save Found</h2>
-            <p className="text-gray-400 text-sm mb-6">
-              You have a saved game. Would you like to continue or start fresh?
-            </p>
-            <div className="flex gap-4 justify-center">
-              <button
-                onClick={() => {
-                  setShowSavePrompt(false)
-                  onContinue()
-                }}
-                className="bg-green-700 hover:bg-green-600 text-white px-6 py-2 text-sm font-bold"
-              >
-                Continue
-              </button>
-              <button
-                onClick={() => {
-                  setShowSavePrompt(false)
-                  onNewGame()
-                }}
-                className="bg-red-800 hover:bg-red-700 text-white px-6 py-2 text-sm font-bold"
-              >
-                New Game
-              </button>
-            </div>
-            <button
-              onClick={() => setShowSavePrompt(false)}
-              className="mt-4 text-gray-500 hover:text-gray-300 text-sm underline"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Language Toggle */}
+      <button
+        onClick={toggleLanguage}
+        className="absolute top-4 right-4 bg-gray-800 hover:bg-gray-700 border border-gray-600 px-4 py-2 text-sm font-bold transition-colors"
+      >
+        {language === 'en' ? '🇷🇺 RU' : '🇬🇧 EN'}
+      </button>
 
       {/* Computer */}
       <div 
@@ -81,7 +52,7 @@ export default function MainMenu({
         }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        onClick={handleClick}
+        onClick={onComputerClick}
       >
         <img 
           src="/pc.png" 
@@ -89,29 +60,48 @@ export default function MainMenu({
           className="w-64 h-auto select-none"
           draggable={false}
         />
-        {hovered && (
+        {hovered && !hasSave && (
           <div className="text-center mt-4 text-gray-400 text-sm">
-            {hasSave ? 'Click to continue...' : 'Click to enter...'}
+            {t('clickToEnter')}
           </div>
         )}
       </div>
 
+      {/* Save dialog */}
+      {hasSave && (
+        <div className="bg-gray-900 border border-gray-600 p-6 mb-8">
+          <h3 className="text-lg font-bold mb-4 text-center">{t('saveFound')}</h3>
+          <div className="flex gap-4">
+            <button
+              onClick={onContinue}
+              className="bg-green-700 hover:bg-green-600 px-6 py-2 font-bold transition-colors"
+            >
+              {t('continueGame')}
+            </button>
+            <button
+              onClick={onNewGame}
+              className="bg-red-800 hover:bg-red-700 px-6 py-2 font-bold transition-colors"
+            >
+              {t('newGame')}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Warning */}
       <div className="max-w-xl text-center px-4 mb-8">
         <div className="border border-red-800 bg-red-900/30 p-4 mb-4">
-          <h2 className="text-red-500 font-bold mb-2 text-lg">⚠ WARNING ⚠</h2>
+          <h2 className="text-red-500 font-bold mb-2 text-lg">⚠ {t('warning')} ⚠</h2>
           <p className="text-gray-300 text-sm leading-relaxed">
-            This experience contains <span className="text-yellow-400 font-bold">LOUD SOUNDS</span>, flashing lights, 
-            disturbing imagery, and horror elements.
-            Not recommended for those with epilepsy or heart conditions.
-            <span className="text-yellow-400 block mt-2">🔊 Lower your volume before playing!</span>
-            Player discretion is advised. This is a work of fiction.
+            {t('warningText')}
+          </p>
+          <p className="text-yellow-400 text-sm font-bold mt-2">
+            {t('lowerVolume')}
           </p>
         </div>
 
         <p className="text-gray-500 text-xs mb-6">
-          By clicking the computer, you agree that you are 18+ years old and 
-          understand this is a horror experience.
+          {t('ageDisclaimer')}
         </p>
       </div>
 
@@ -129,7 +119,7 @@ export default function MainMenu({
             htmlFor="hideIP" 
             className="text-gray-300 text-sm cursor-pointer select-none"
           >
-            Hide your IP during gameplay
+            {t('hideIP')}
           </label>
         </div>
 
@@ -145,15 +135,13 @@ export default function MainMenu({
             htmlFor="accessibilityMode" 
             className="text-blue-300 text-sm cursor-pointer select-none"
           >
-            👁️ Accessibility Mode (no flashing/flickering)
+            {t('accessibilityMode')}
           </label>
         </div>
         
         {accessibilityMode && (
           <div className="text-green-400 text-xs text-center px-4">
-            ✓ Flashing lights, screen shake, and rapid animations are disabled.
-            <br />
-            Safe for photosensitive users and those with eye strain.
+            {t('accessibilityNote')}
           </div>
         )}
       </div>

@@ -1,5 +1,6 @@
 import { useEffect, useCallback } from 'react'
 import { Post, HorrorLevel, GameState } from '../types'
+import { Language } from '../translations'
 
 const SAVE_KEY = 'fchan_horror_save'
 
@@ -14,6 +15,7 @@ export interface GameSave {
   weirdcoreIndex: number
   showWeirdcore: boolean
   timestamp: number
+  language?: Language
 }
 
 export function saveGame(data: Partial<GameSave>) {

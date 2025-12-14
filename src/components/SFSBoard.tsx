@@ -5,6 +5,7 @@ import ReplyForm from './ReplyForm'
 import HorrorOverlay from './HorrorOverlay'
 import FinalScene from './FinalScene'
 import { loadGame, saveGame } from '../hooks/useGameSave'
+import { Language, getTranslation } from '../translations'
 
 interface SFSBoardProps {
   horrorLevel: HorrorLevel
@@ -14,6 +15,7 @@ interface SFSBoardProps {
   playHorror: () => void
   stopAmbient: () => void
   accessibilityMode: boolean
+  language: Language
 }
 
 const PEPE_IMAGES = [
@@ -32,14 +34,6 @@ const WEIRDCORE_IMAGES = [
 
 const getRandomPepe = () => PEPE_IMAGES[Math.floor(Math.random() * PEPE_IMAGES.length)]
 
-const INITIAL_POST: Post = {
-  id: 12683241,
-  author: 'John Doe',
-  date: '10/15/23(Sun)12:00:00',
-  content: `Hey, if anyone's here... Reply. FChan is dead, but I'm still here. John Doe. That's me, the one who stayed when everyone left. The boards are empty, echoes of old posts, but I'm waiting. Waiting for someone to say: "I see you". Maybe it's you? Just say something. Tell me about your day, about the weather, about why you're here. Don't leave me alone in this silence, where only pixels whisper. FChan was alive, full of voices - now there's only mine. Please reply. The kitty is waiting.`,
-  image: '/cat.jpeg',
-}
-
 export default function SFSBoard({ 
   horrorLevel, 
   increaseHorror, 
@@ -47,8 +41,19 @@ export default function SFSBoard({
   playAmbient,
   playHorror,
   stopAmbient,
-  accessibilityMode
+  accessibilityMode,
+  language
 }: SFSBoardProps) {
+  const t = (key: keyof typeof import('../translations').translations.en) => getTranslation(language, key)
+  
+  const INITIAL_POST: Post = {
+    id: 12683241,
+    author: 'John Doe',
+    date: '10/15/23(Sun)12:00:00',
+    content: t('johnDoeInitial'),
+    image: '/cat.jpeg',
+  }
+
   const [posts, setPosts] = useState<Post[]>([INITIAL_POST])
   const [dialogueStep, setDialogueStep] = useState(0)
   const [isTyping, setIsTyping] = useState(false)
@@ -122,14 +127,16 @@ export default function SFSBoard({
   }, [])
 
   const getWeirdcoreMessage = (index: number): string => {
-    const messages = [
-      `What do you see here? What do you feel?`,
-      `Do you remember this place? You've been here before.`,
-      `The walls are watching. Can you feel them?`,
-      `This is where we all end up. Eventually.`,
-      ``,
+    const keys: (keyof typeof import('../translations').translations.en)[] = [
+      'weirdcore1',
+      'weirdcore2', 
+      'weirdcore3',
+      'weirdcore4',
     ]
-    return messages[index] || ''
+    if (index < keys.length) {
+      return t(keys[index])
+    }
+    return ''
   }
 
   const handleUserReply = useCallback((content: string) => {
@@ -246,6 +253,7 @@ export default function SFSBoard({
         setCanReply(true)
       }, delay)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canReply, dialogueStep, posts.length, generateAdaptiveResponse, increaseHorror, userIP, playAmbient, playHorror, stopAmbient])
 
   const handleNewThread = useCallback(() => {
@@ -254,7 +262,7 @@ export default function SFSBoard({
   }, [])
 
   if (showFinalScene) {
-    return <FinalScene accessibilityMode={accessibilityMode} />
+    return <FinalScene accessibilityMode={accessibilityMode} language={language} />
   }
 
   return (
@@ -266,37 +274,37 @@ export default function SFSBoard({
       {showWeirdcore && (
         <>
           <div className="weirdcore-text text-2xl" style={{ top: '10%', left: '5%' }}>
-            you are nothing
+            {t('youAreNothing')}
           </div>
           <div className="weirdcore-text text-xl" style={{ top: '30%', right: '10%' }}>
-            you never even said sorry
+            {t('neverSaidSorry')}
           </div>
           <div className="weirdcore-text text-3xl" style={{ bottom: '20%', left: '15%' }}>
-            I SEE YOU
+            {t('iSeeYou')}
           </div>
           <div className="weirdcore-text text-lg" style={{ top: '50%', right: '5%' }}>
-            why did you come here
+            {t('whyComeHere')}
           </div>
           <div className="weirdcore-text text-2xl" style={{ bottom: '40%', right: '20%' }}>
-            there is no escape
+            {t('noEscape')}
           </div>
           {weirdcoreIndex >= 3 && (
             <>
               <div className="weirdcore-text text-xl" style={{ top: '70%', left: '8%' }}>
-                you were always here
+                {t('alwaysHere')}
               </div>
               <div className="weirdcore-text text-lg" style={{ top: '15%', right: '25%' }}>
-                do you remember?
+                {t('doYouRemember')}
               </div>
             </>
           )}
           {weirdcoreIndex >= 4 && (
             <>
               <div className="weirdcore-text text-3xl" style={{ top: '45%', left: '30%' }}>
-                WAKE UP
+                {t('wakeUp')}
               </div>
               <div className="weirdcore-text text-xl" style={{ bottom: '10%', right: '15%' }}>
-                this is not a dream
+                {t('notADream')}
               </div>
             </>
           )}
@@ -319,12 +327,12 @@ export default function SFSBoard({
           onClick={handleNewThread}
           className="text-blue-600 underline font-bold hover:text-red-600"
         >
-          [Start a New Thread]
+          [{t('startNewThread')}]
         </button>
         
         {showNewThreadError && (
           <div className="mt-2 text-red-600 text-sm bg-red-100 inline-block px-4 py-2 border border-red-300">
-            Error: Thread creation is disabled. The board is archived.
+            {t('threadError')}
           </div>
         )}
       </div>
@@ -333,11 +341,11 @@ export default function SFSBoard({
       <div className="px-4 py-2 text-sm">
         <input 
           type="text" 
-          placeholder="Search OPs..." 
+          placeholder={t('searchOPs')}
           className="border border-gray-400 px-2 py-1 text-sm mr-2"
         />
-        [<a className="chan-link" href="#">Catalog</a>]
-        {' '}[<a className="chan-link" href="#">Archive</a>]
+        [<a className="chan-link" href="#">{t('catalog')}</a>]
+        {' '}[<a className="chan-link" href="#">{t('archive')}</a>]
       </div>
 
       <hr className="border-gray-300 my-2" />
@@ -356,7 +364,7 @@ export default function SFSBoard({
         {/* Typing indicator */}
         {isTyping && (
           <div className="ml-8 mt-4 text-gray-600">
-            <span className="italic">John Doe is typing</span>
+            <span className="italic">{t('isTyping')}</span>
             <span className="typing-dot">.</span>
             <span className="typing-dot">.</span>
             <span className="typing-dot">.</span>
@@ -370,6 +378,7 @@ export default function SFSBoard({
           onSubmit={handleUserReply}
           replyTo={12683241}
           disabled={!canReply}
+          language={language}
         />
       )}
     </div>
