@@ -32,6 +32,7 @@ export function saveGame(data: Partial<GameSave>) {
       weirdcoreIndex: data.weirdcoreIndex ?? existing?.weirdcoreIndex ?? 0,
       showWeirdcore: data.showWeirdcore ?? existing?.showWeirdcore ?? false,
       timestamp: Date.now(),
+      language: data.language ?? existing?.language ?? 'en',
     }
     localStorage.setItem(SAVE_KEY, JSON.stringify(save))
   } catch (e) {
